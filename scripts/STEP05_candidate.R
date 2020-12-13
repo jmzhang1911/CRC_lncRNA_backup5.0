@@ -81,7 +81,9 @@ if(T){
   
   cor_crcgene <- unique(cor_lnc_crcgene$source);length(cor_crcgene) #104
   cor_lnc <- unique(cor_lnc_crcgene$target);length(cor_lnc) #737
-  crc_corgenelist <- list(cor_lnc = cor_lnc, cor_crcgene = cor_crcgene)
+  crc_corgenelist <- list(cor_lnc_crcgene = cor_lnc_crcgene, 
+                          cor_lnc = cor_lnc, 
+                          cor_crcgene = cor_crcgene)
   
   save(crc_corgenelist, file = 'outcomes/candidate/crc_corgenelist.RData')
 }

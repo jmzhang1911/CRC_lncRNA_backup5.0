@@ -120,12 +120,16 @@ write.csv(DE_candi_miRNA_df, file = 'outcomes/ceRNAnetwork/DE_candi_miRNA_df.csv
 key_miRNA_family <- c('let-7-5p=miR-98-5p','miR-101-3p_1',
                       'miR-101a-3p_2=101b-3p_1=101b-3p_2',
                       'miR-103-3p=107-3p','miR-125-5p=351-5p',
-                      'miR-128-3p','miR-132-3p=212-3p','miR-139-5p',
+                      'miR-128-3p','miR-132-3p=212-3p','miR-139-5p','miR-141-3p=200a-3p',
                       'miR-143-3p','miR-153-3p','miR-155-5p',
-                      'miR-15-5p=16-5p=195-5p=322-5p=497-5p','miR-141-3p=200a-3p',
+                      'miR-15-5p=16-5p=195-5p=322-5p=497-5p',
                       'miR-17-5p=20-5p=93-5p=106-5p','miR-181-5p',
                       'miR-182-5p','miR-183-5p','miR-190-5p',
-                      'miR-192-5p=215-5p','miR-193-3p','miR-194-5p')
+                      'miR-192-5p=215-5p','miR-193-3p','miR-194-5p','miR-200bc-3p=429-3p',
+                      'miR-21-5p','miR-212-5p','miR-218-5p','miR-219-5p','miR-223-3p',
+                      'miR-24-3p','miR-25-3p=32-5p=92-3p=363-3p=367-3p','miR-26-5p',
+                      'miR-27-3p','miR-338-3p','miR-34-5p=449-5p','miR-375-3p',
+                      'miR-425-5p=489-3p','miR-7-5p')
 
 #miRNA_family => hsa_mir
 hsa_mir <- c('hsa-let-7b','hsa-let-7d','hsa-let-7f-1','hsa-let-7f-2',
@@ -140,11 +144,16 @@ hsa_mir <- c('hsa-let-7b','hsa-let-7d','hsa-let-7f-1','hsa-let-7f-2',
             'hsa-mir-24-2','hsa-mir-25','hsa-mir-26a-1','hsa-mir-26a-2',
             'hsa-mir-26b','hsa-mir-27a','hsa-mir-27b','hsa-mir-338',
             'hsa-mir-34a','hsa-mir-375','hsa-mir-425','hsa-mir-7-1','hsa-mir-7-2','hsa-mir-7-3')
+save(key_miRNA_family, file = 'outcomes/ceRNAnetwork/key_miRNA_family.RData')
 
 
 ggdata <- DE_candi_miRNA_df %>% dplyr::filter(miRNA_family %in% key_miRNA_family,
                                               gene_id %in% hsa_mir) 
-  
+
+
+
+
+
 
 
 # visualization
@@ -157,13 +166,14 @@ nor_df %>% as.data.frame() %>% rownames_to_column(var = 'gene_id') %>%
   geom_boxplot(aes(fill = class)) +
   facet_wrap(gene_id~.) +
   scale_fill_nejm() +
-  scale_y_continuous(limits = c(0,5)) +
+  scale_y_continuous(limits = c(0,8)) +
   labs(x = '',
        y = paste("Expression level log10", "\n", ("(normalized reads count)"))) +
   geom_signif(comparisons = list(c('normal', 'tumor')),
               map_signif_level = T,
-              test = t.test,
-              y_position = 4.7) +
+              test = t.test ,
+              margin_top  = 10,
+              y_position = 6.5) +
   theme_bw() +
   theme(axis.text.x = element_blank())
 ggsave('outcomes/ceRNAnetwork/hsa_mir_DEplot.pdf', height = 10, width = 10, dpi = 300)
@@ -174,9 +184,10 @@ ggdata2 <- mydeanalysis(res) %>% drop_na()
 ggdata3 <- ggdata2 %>% dplyr::filter(gene_id %in% hsa_mir)
 
 ggplot(ggdata2, aes(x = log2FoldChange, y = -log10(pvalue))) +
-  geom_point(size = 2, color = '#708090', show.legend = T, alpha = 0.2) +
-  geom_point(data = ggdata3, size = 3, shape = 21, aes(fill = direction)) +
-  scale_fill_manual(values = c("#00008B", "#8B0000")) +
+  geom_point(size = 2, color = '#708090', show.legend = T, alpha = 0.5) +
+  geom_point(data = ggdata3, size = 3, #shape = 21, 
+             aes(color = direction)) +
+  scale_color_manual(values = c("#00008B", "#8B0000")) +
   labs(x = "Log2FoldChange",
        y = 'miRNA\n-log10(Adjust P-Value)') +
   geom_hline(yintercept = -log10(0.05), 
@@ -190,4 +201,26 @@ ggplot(ggdata2, aes(x = log2FoldChange, y = -log10(pvalue))) +
         legend.title = element_blank(),
         legend.position = c(0.2, 0.85))
 ggsave('outcomes/ceRNAnetwork/hsa_mir_volcano.pdf',height = 10, width = 8, dpi = 300)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
