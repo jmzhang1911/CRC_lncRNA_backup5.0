@@ -29,13 +29,14 @@ if(T){
   
   # do.call can bind the list With or without empty elements in list
   TF_df <- do.call(rbind, TF_list);rownames(TF_df) <- NULL
+  save(TF_df, file = 'outcomes/lnc_proteins/TF_df.RData')
 }
 
 # filter the colon related TF
 TF_df_res <- TF_df %>% dplyr::filter(str_detect(Cell_type, 'colon|intestin')) %>%
   dplyr::filter(up_TSS == 'Yes' | overlap_TSS == 'Yes')
-table(TF_df_res$TF) # 21 TFs
-
+a <- table(TF_df_res$TF) # 21 TFs
+write.csv(as.data.frame(a), file = 'outcomes/lnc_proteins/TF_df.csv', row.names = F)
 # annotation
 TF_anno <- getBM(attributes =c('ensembl_gene_id',
                                'external_gene_name',
@@ -86,7 +87,7 @@ text(0, 0, "Interactions between dy-lncRNAs and TFs", cex = 0.8)
 dev.off()
 circos.clear()
 
-s#===> interaction with protein
+#===> interaction with protein
 if(T){
   Pro_list <- sapply(filepath, function(x){
     Propath <- paste(x, '/', basename(x), 
