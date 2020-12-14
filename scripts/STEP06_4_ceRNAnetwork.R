@@ -152,31 +152,33 @@ ggdata <- DE_candi_miRNA_df %>% dplyr::filter(miRNA_family %in% key_miRNA_family
 
 
 
-
+prob <- c('hsa-mir-181a-2', 'hsa-mir-17','hsa-mir-143',
+          'hsa-mir-7-2','hsa-mir-375','hsa-mir-155',
+          'hsa-mir-34a','hsa-mir-125b-1','hsa-mir-26b')
 
 
 
 # visualization
 nor_df %>% as.data.frame() %>% rownames_to_column(var = 'gene_id') %>%
-  dplyr::filter(gene_id %in% ggdata$gene_id) %>%
+  dplyr::filter(gene_id %in% prob) %>%
   gather(key = 'class', value = 'count', 2:(ncol(nor_df)+1)) %>%
   mutate(class = str_replace_all(class, '_[0-9]', ''),
          class = factor(class)) %>%
   ggplot(aes(x = class, y = log10(count+1))) +
   geom_boxplot(aes(fill = class)) +
-  facet_wrap(gene_id~.) +
+  facet_wrap(gene_id~.,scales = 'free') +
   scale_fill_nejm() +
-  scale_y_continuous(limits = c(0,8)) +
+  scale_y_continuous(limits = c(0,7)) +
   labs(x = '',
        y = paste("Expression level log10", "\n", ("(normalized reads count)"))) +
   geom_signif(comparisons = list(c('normal', 'tumor')),
               map_signif_level = T,
-              test = t.test ,
-              margin_top  = 10,
+              test = t.test,
+              
               y_position = 6.5) +
   theme_bw() +
   theme(axis.text.x = element_blank())
-ggsave('outcomes/ceRNAnetwork/hsa_mir_DEplot.pdf', height = 10, width = 10, dpi = 300)
+ggsave('outcomes/ceRNAnetwork/hsa_mir_DEplot_prob.pdf', height = 8, width = 8, dpi = 300)
 
 
 

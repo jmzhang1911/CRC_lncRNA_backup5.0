@@ -2,12 +2,18 @@ rm(list = ls())
 source('Utils.R')
 library(maSigPro)
 
+
 mkdir('outcomes/masigpro')
 load('outcomes/inputdata/input.RData')
+
+
+
+
 #===> input data
 mRNA_lncRNA_count <-  input_matrix_count$mRNA_lncRNA_count %>%
   column_to_rownames(var = 'gene_id')
 cpm <- edgeR::cpm(mRNA_lncRNA_count)
+
 
 
 
@@ -53,4 +59,39 @@ dynamicdf <- data.frame(
 
 table(dynamicdf$cluster)
 save(dynamicdf, file = 'outcomes/masigpro/dynamicdf.RData')
+
+
+
+#===> 
+a <- column_to_rownames(input_matrix_count$fpkm_count, var = 'gene_id')[dynamicdf$gene_id,]
+rownames(a) == dynamicdf$gene_id
+anno_row <- dynamicdf %>% group_by(cluster, gene_type) %>% summarise(count = n()) %>%
+  pivot_wider(names_from = gene_type, values_from = count) %>%
+  mutate(total = coding + lnc,
+         Cluster = str_c('cluster',cluster,' ',total,' = ',
+                      coding,'(coding)', ' + ', lnc, '(lncRNA)')) %>%
+  left_join(dynamicdf, by = 'cluster') %>%
+  ungroup() %>%
+  dplyr::select(gene_id, Cluster) %>% column_to_rownames(var = 'gene_id')
+a <- a[match(rownames(anno_row), rownames(a)),]
+#rownames(a) <- rownames(anno_row)
+
+rownames(anno_row) == rownames(a)
+
+anno_col= data.frame(
+  Group = rep(c('Ctrl','Week2','Week4','Week7','Week10'), each = 3))
+    
+anno_col$Group <- factor(anno_col$Group, levels = c("Ctrl", "Week2", "Week4", "Week7", "Week10"))
+row.names(anno_col) <- colnames(a)
+
+pdf('outcomes/masigpro/heatmap.pdf', width = 8, height = 6)
+pheatmap(a,
+         cluster_rows = F,
+         show_rownames = F,
+         cluster_cols = F,
+         scale = "row",
+         annotation_row = anno_row,
+         color =colorRampPalette(c("#87CEFA", "white", "#CC2121"))(100),
+         annotation_col = anno_col)
+dev.off()
 

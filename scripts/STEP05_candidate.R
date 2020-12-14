@@ -42,6 +42,13 @@ if(T){
   save(lncRNA_expr_class_list, file = 'outcomes/candidate/lncRNA_expr_class_list.RData')
 }
 
+# dynamic coding genes enrichment analysis
+source('scripts/STEP09_endplot.R')
+df <- mygetallpathwaydf(genelist = dynamic_de_df$gene_id, 
+                        prob = CRC_related_pathway_prob)
+mypathwayplot(df, 'Enrchment of dynamic coding genes ')
+
+View(df)
 
 # CRC dynamic-coding genes list
 if(T){
