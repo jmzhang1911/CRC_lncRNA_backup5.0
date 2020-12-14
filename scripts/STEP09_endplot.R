@@ -3,6 +3,8 @@ source('Utils.R')
 
 #====> plot result of pathway 
 mygetallpathwaydf <- function(genelist, prob=FALSE){
+
+  prob = CRC_related_pathway_prob
   gene.df <- bitr(genelist, fromType = "ENSEMBL",
                   toType = c("SYMBOL", "ENTREZID"),
                   OrgDb = org.Mm.eg.db)
@@ -28,14 +30,21 @@ mygetallpathwaydf <- function(genelist, prob=FALSE){
   df_all <- union_all(kk_res, go_res) %>% dplyr::filter(p.adjust <= 0.05)
   
   if(!is.logical(prob)){
+    # how much to get
     adf <- dplyr::filter(df_all, ID %in% prob) %>% dplyr::count(enrich_method) %>%
       mutate(get = if_else(n >=10, 0, 10-n))
     
     bdf <- dplyr::filter(df_all, ID %in% prob)
+    tmpdf <- dplyr::filter(df_all, ID %!in% prob) %>% dplyr::count(enrich_method)
+
     cdf <- left_join(df_all, adf, by = 'enrich_method') %>% dplyr::select(-n) %>%
-      dplyr::filter(ID %!in% prob) %>% group_by(enrich_method) %>% 
+      dplyr::filter(ID %!in% prob) %>%
       mutate(get = if_else(is.na(get), 10, get)) %>%
-      dplyr::sample_n(get) %>% union_all(bdf) %>% 
+      left_join(tmpdf, by = 'enrich_method') %>%
+      mutate(get = if_else(get >= n, as.numeric(n), as.numeric(get))) %>%
+      group_by(enrich_method) %>%
+      dplyr::sample_n(get) %>% 
+      union_all(bdf) %>% 
       mutate(Description = factor(Description, levels = unique(Description)))
     return(cdf)
   }
@@ -70,4 +79,3 @@ CRC_related_pathway_prob <- c('mmu04520','mmu03015','mmu05210',
                               'GO:0016570','GO:0006338','GO:0032259',
                               'GO:0050821','GO:0042393','GO:0002039',
                               'GO:0035102')
-

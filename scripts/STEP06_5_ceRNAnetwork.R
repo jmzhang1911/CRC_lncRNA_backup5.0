@@ -59,11 +59,16 @@ table(miRNA_tar$miRNA)
 
 
 #===> make dynamic ceRNA network
+source('scripts/STEP09_endplot.R')
 genelist <- unique(miRNA_tar$tar_gene_entrez)
 gene.df <- bitr(genelist, fromType = "ENTREZID",
                 toType = c("SYMBOL", "ENSEMBL"),
                 OrgDb = org.Mm.eg.db)
 myenrich(gene.df$ENSEMBL,'outcomes/ceRNAnetwork/all_miRNA_targenes')
+tmp <- mygetallpathwaydf(gene.df$ENSEMBL, prob = CRC_related_pathway_prob)
+df <- mygetallpathwaydf(gene.df$ENSEMBL, prob = TRUE)
+mypathwayplot(tmp, title = 'enrichment analysis of miRNA target genes')
+
 
 ceRNA_net <- miRNA_tar %>% mutate(tar_gene_entrez = as.character(tar_gene_entrez)) %>% 
   left_join(gene.df, by = c('tar_gene_entrez' = 'ENTREZID')) %>% 

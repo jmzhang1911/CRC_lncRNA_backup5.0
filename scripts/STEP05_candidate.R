@@ -32,7 +32,7 @@ if(T){
   dynamic_lnc <- dy_lncdf$gene_id
   not_dynamic_lnc <- lncRNA_expr_class_df %>% 
     dplyr::filter(expr_class == 'not_dynamic') %>%
-    pull(gene_id)
+    pull(gene_id, )
   lncRNA_expr_class_list <- list(lncRNA_expr_class_df = lncRNA_expr_class_df,
                                  dynamic_lnc =dynamic_lnc,
                                  not_dynamic_lnc = not_dynamic_lnc)
@@ -42,13 +42,21 @@ if(T){
   save(lncRNA_expr_class_list, file = 'outcomes/candidate/lncRNA_expr_class_list.RData')
 }
 
-# dynamic coding genes enrichment analysis
+# dynamic genes enrichment analysis
 source('scripts/STEP09_endplot.R')
 df <- mygetallpathwaydf(genelist = dynamic_de_df$gene_id, 
                         prob = CRC_related_pathway_prob)
 mypathwayplot(df, 'Enrchment of dynamic coding genes ')
 
-View(df)
+lnc_closed_genes <- read.table('outcomes/candidate/dynamic_lnc_closest_coding_gene.txt')$V1
+df2 <- mygetallpathwaydf(genelist = lnc_closed_genes,
+                         prob = CRC_related_pathway_prob)
+mypathwayplot(df2, 'enrichment of dynamic-lncRNA')
+table(dynamic_de_df$gene_id %in% lnc_closed_genes)
+
+
+
+
 
 # CRC dynamic-coding genes list
 if(T){
