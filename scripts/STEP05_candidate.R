@@ -82,7 +82,7 @@ if(T){
     column_to_rownames(var = 'gene_id') %>% myddnor() %>%
     as.matrix() %>% t() %>%
     mycoranalysis2()
-  #save(cor_results, file = 'outcomes/candidate/cor_results.RData') 
+    save(cor_results, file = 'outcomes/candidate/cor_results.RData') 
 }
 
 
