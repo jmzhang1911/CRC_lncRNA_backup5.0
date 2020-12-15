@@ -23,7 +23,7 @@ if(F){
                          workflow.type = "BCGSC miRNA Profiling")
   
   miRNA_expr_df <- GDCprepare(query = miRNA_expr)　
-  save(miRNA_expr_df, file = 'outcomes/ceRNAnetwork/miRNA_DEanalysis/input.RData')
+  #save(miRNA_expr_df, file = 'outcomes/ceRNAnetwork/miRNA_DEanalysis/input.RData')
   
 }
 
@@ -84,19 +84,22 @@ dds <- DESeq2::DESeqDataSetFromMatrix(countData = tmpexpr2,
 dds <- DESeq2::DESeq(dds)
 res <- DESeq2::results(dds, contrast = c('condition', 'cancer', 'normal'))
 nor_df <- counts(dds, normalized=TRUE)
-nor_df %>% as.data.frame() %>% rownames_to_column(var = 'gene_id') %>%
-  gather(key = 'sample', value = 'count', 2:(ncol(nor_df)+1)) %>%
-  mutate(sample = factor(sample, levels = colnames(nor_df))) %>%
-  ggplot(aes(x = sample, y = log10(count+1))) +
-  geom_boxplot(fill = '#228B22') +
-  theme_classic() +
-  labs(x = '',
-       title = 'Batch effect after normalization') +
-  theme(axis.text.x = element_text(hjust = 1,
-                                   vjust = 1,
-                                   angle = 90)) 
+if(F){
+  nor_df %>% as.data.frame() %>% rownames_to_column(var = 'gene_id') %>%
+    gather(key = 'sample', value = 'count', 2:(ncol(nor_df)+1)) %>%
+    mutate(sample = factor(sample, levels = colnames(nor_df))) %>%
+    ggplot(aes(x = sample, y = log10(count+1))) +
+    geom_boxplot(fill = '#228B22') +
+    theme_classic() +
+    labs(x = '',
+         title = 'Batch effect after normalization') +
+    theme(axis.text.x = element_text(hjust = 1,
+                                     vjust = 1,
+                                     angle = 90)) 
+}
+
 DE_miRNA_res <- mydeanalysis(res)
-save(DE_miRNA_res, file = 'outcomes/ceRNAnetwork/miRNA_DEanalysis/DE_miRNA_res.RData')
+#save(DE_miRNA_res, file = 'outcomes/ceRNAnetwork/miRNA_DEanalysis/DE_miRNA_res.RData')
 
 
 
@@ -156,7 +159,8 @@ prob <- c('hsa-mir-181a-2', 'hsa-mir-17','hsa-mir-143',
           'hsa-mir-7-2','hsa-mir-375','hsa-mir-155',
           'hsa-mir-34a','hsa-mir-125b-1','hsa-mir-26b')
 
-
+set.seed(123)
+prob <- sample(hsa_mir, 16)
 
 # visualization
 nor_df %>% as.data.frame() %>% rownames_to_column(var = 'gene_id') %>%
