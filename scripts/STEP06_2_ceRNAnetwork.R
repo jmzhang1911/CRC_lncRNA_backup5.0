@@ -4,6 +4,7 @@ source('Utils.R')
 
 load('outcomes/inputdata/input.RData')
 load('outcomes/candidate/maxtrans_df.RData')
+load('outcomes/candidate/cor_dy_lnc_gene.RData')
 load('outcomes/ceRNAnetwork/lncRNA_miRNA_res/miRNA_inter_reslist.RData')
 
 
@@ -27,11 +28,11 @@ if(T){
 
 #===> miRNAs interact with lncRNA
 load('outcomes/ceRNAnetwork/mmu_scan.RData')
-load('outcomes/candidate/crc_corgenelist.RData')
 load('outcomes/candidate/maxtrans_df.RData')
+
 # filter the miRNAs which have 3 interactions with any of lncRNA at least
-prob <- maxtrans_df %>% dplyr::filter(gene_id %in% crc_corgenelist$cor_lnc) %>%
-  pull(trans_id) #737
+prob <- maxtrans_df %>% dplyr::filter(gene_id %in% cor_dy_lnc_gene$target) %>%
+  pull(trans_id) #804
 
 miRNA_inter_final <- miRNA_inter_reslist$miRNA_inter_inte %>%
   mutate(miRNA_family = str_replace_all(miRNA_family, '/', '='),
@@ -42,20 +43,23 @@ miRNA_inter_final <- miRNA_inter_reslist$miRNA_inter_inte %>%
 
 
 # 89 candidate miRNAs, next will analysis survival and DE of them 
-candidate_miRNA <- miRNA_inter_final %>% 
+new_candidate_miRNA <- miRNA_inter_final %>% 
   group_by(miRNA_family) %>% arrange(miRNA_family, desc(inter_num)) %>%
   top_n(1, inter_num) %>% distinct(miRNA_family, inter_num) %>% 
   rename(maxinternum = inter_num) %>%
   mutate(prob = str_extract(miRNA_family, '^[a-zA-Z]{3,}-[0-9]+')) 
 
+save(new_candidate_miRNA, 
+     file = 'outcomes/ceRNAnetwork/lncRNA_miRNA_res/new_lncRNA_miRNA_res.RData')
+
 save(miRNA_inter_final, candidate_miRNA, 
      file = 'outcomes/ceRNAnetwork/lncRNA_miRNA_res/lncRNA_miRNA_res.RData')
+load('outcomes/ceRNAnetwork/lncRNA_miRNA_res/lncRNA_miRNA_res.RData')
 
 
+a <- new_candidate_miRNA$miRNA_family[new_candidate_miRNA$miRNA_family %!in% candidate_miRNA$miRNA_family]
 
-
-
-
+new_candidate_miRNA %>% dplyr::filter(miRNA_family %in% a)
 
 
 

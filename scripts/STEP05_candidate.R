@@ -23,7 +23,7 @@ dynamic_de_df <- dynamicdf %>% dplyr::filter(gene_id %in% dedf$gene_id)
 table(dynamic_de_df$gene_type)
 #get the dy genes
 dy_lncdf <- dynamic_de_df[dynamic_de_df$gene_type == 'lnc',];dim(dy_lncdf) #807
-
+dy_codingdf <- dynamic_de_df[dynamic_de_df$gene_type == 'coding',];dim(dy_codingdf)
 
 # dynamic or not dynamic lnclist
 if(T){
@@ -44,7 +44,7 @@ if(T){
 
 # dynamic genes enrichment analysis
 source('scripts/STEP09_endplot.R')
-df <- mygetallpathwaydf(genelist = dynamic_de_df$gene_id, 
+df <- mygetallpathwaydf(genelist = dy_codingdf$gene_id, 
                         prob = CRC_related_pathway_prob)
 mypathwayplot(df, 'Enrchment of dynamic coding genes ')
 
@@ -53,6 +53,29 @@ df2 <- mygetallpathwaydf(genelist = lnc_closed_genes,
                          prob = CRC_related_pathway_prob)
 mypathwayplot(df2, 'enrichment of dynamic-lncRNA')
 table(dynamic_de_df$gene_id %in% lnc_closed_genes)
+
+
+
+if(T){
+  cor_results <- input_matrix_count$mRNA_lncRNA_count %>%
+    dplyr::filter(gene_id %in% dynamic_de_df$gene_id) %>% 
+    column_to_rownames(var = 'gene_id') %>% myddnor() %>%
+    as.matrix() %>% t() %>%
+    mycoranalysis2()
+  #save(cor_results, file = 'outcomes/candidate/cor_results.RData') 
+}
+
+cor_dy_lnc_gene <- dplyr::filter(cor_results, source %in% dy_codingdf$gene_id,
+                                 target %in% dy_lncdf$gene_id,
+                                 abs(r_value) >=0.7, p_value < 0.05) 
+length(unique(cor_dy_lnc_gene$source)) #3999
+length(unique(cor_dy_lnc_gene$target)) #804
+save(cor_dy_lnc_gene, file = 'outcomes/candidate/cor_dy_lnc_gene.RData')
+
+
+
+
+
 
 
 

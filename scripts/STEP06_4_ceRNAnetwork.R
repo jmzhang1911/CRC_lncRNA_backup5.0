@@ -106,11 +106,11 @@ DE_miRNA_res <- mydeanalysis(res)
 
 #===> check it out whether candidata miRNA is DE and survival related
 load('outcomes/ceRNAnetwork/miRNA_DEanalysis/DE_miRNA_res.RData')
-load('outcomes/ceRNAnetwork/lncRNA_miRNA_res/lncRNA_miRNA_res.RData')
+load('outcomes/ceRNAnetwork/lncRNA_miRNA_res/new_lncRNA_miRNA_res.RData')
 
 dim(DE_miRNA_res) #839
-dim(candidate_miRNA) #89
-prob <- candidate_miRNA %>% mutate(prob = str_replace_all(prob, 'miR', 'mir'))
+dim(new_candidate_miRNA) #89
+prob <- new_candidate_miRNA %>% mutate(prob = str_replace_all(prob, 'miR', 'mir'))
 DE_candi_miRNA_df <- DE_miRNA_res %>% dplyr::filter(direction %in% c('up','down')) %>%
   mutate(prob = str_extract(gene_id, '(let|mir)-[0-9]+')) %>%
   left_join(prob, by = 'prob') %>% drop_na()
@@ -132,7 +132,7 @@ key_miRNA_family <- c('let-7-5p=miR-98-5p','miR-101-3p_1',
                       'miR-21-5p','miR-212-5p','miR-218-5p','miR-219-5p','miR-223-3p',
                       'miR-24-3p','miR-25-3p=32-5p=92-3p=363-3p=367-3p','miR-26-5p',
                       'miR-27-3p','miR-338-3p','miR-34-5p=449-5p','miR-375-3p',
-                      'miR-425-5p=489-3p','miR-7-5p')
+                      'miR-425-5p=489-3p','miR-7-5p','miR-10-5p')
 
 #miRNA_family => hsa_mir
 hsa_mir <- c('hsa-let-7b','hsa-let-7d','hsa-let-7f-1','hsa-let-7f-2',
@@ -146,7 +146,8 @@ hsa_mir <- c('hsa-let-7b','hsa-let-7d','hsa-let-7f-1','hsa-let-7f-2',
             'hsa-mir-218-2','hsa-mir-219a-1','hsa-mir-223','hsa-mir-24-1',
             'hsa-mir-24-2','hsa-mir-25','hsa-mir-26a-1','hsa-mir-26a-2',
             'hsa-mir-26b','hsa-mir-27a','hsa-mir-27b','hsa-mir-338',
-            'hsa-mir-34a','hsa-mir-375','hsa-mir-425','hsa-mir-7-1','hsa-mir-7-2','hsa-mir-7-3')
+            'hsa-mir-34a','hsa-mir-375','hsa-mir-425','hsa-mir-7-1','hsa-mir-7-2','hsa-mir-7-3',
+            'has-mir-10a','has-mir-10b')
 save(key_miRNA_family, file = 'outcomes/ceRNAnetwork/key_miRNA_family.RData')
 
 

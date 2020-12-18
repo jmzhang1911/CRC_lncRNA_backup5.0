@@ -4,7 +4,6 @@ source('Utils.R')
 #====> plot result of pathway 
 mygetallpathwaydf <- function(genelist, prob=FALSE){
 
-  prob = CRC_related_pathway_prob
   gene.df <- bitr(genelist, fromType = "ENSEMBL",
                   toType = c("SYMBOL", "ENTREZID"),
                   OrgDb = org.Mm.eg.db)
